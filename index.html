@@ -1,0 +1,138 @@
+<html>
+
+<head>
+    <title>Song Requests</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body class="container">
+
+    <h1>Song Requests</h1>
+
+    <p>{{ .LoggedInName }} (<a id="logout">Sign Out</a>)</p>
+
+    <script>
+        document.getElementById("logout").onclick = () => {
+            var p = window.location.protocol + '//'
+            window.location = window.location.href.replace(p, p + 'logout:logout@')
+        }
+    </script>
+
+    {{ if .AdminUser }}
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#requests">Requests</a></li>
+        <li><a data-toggle="tab" href="#admin">Admin</a></li>
+    </ul>
+    {{ end }}
+
+    <div class="tab-content">
+        <div id="requests" class="tab-pane fade in active">
+            <h2>Request</h2>
+            You have <b>{{ .RequestsLeft }}</b> requests left this year.
+            <br>
+            <br> {{ if gt .RequestsLeft 0 }}
+            <form action="/iwant" , method="post" , class="form" , target="_self">
+                <label for="song-title">Song Title:</label>
+                <input type="text" id="song-title" name="song-title" required class="form-control"><br><br>
+
+                <label for="artist">Artist:</label>
+                <input type="text" id="artist" name="artist" required class="form-control"><br><br>
+
+                <label for="other-info">Other Information:</label>
+                <textarea id="other-info" name="other-info" class="form-control"></textarea><br><br>
+
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </form>
+            {{ end }}
+            <hr>
+            <h2>My Requests</h2>
+            <table class="table table-striped">
+                {{ range .SongRequests }}
+                <tr>
+                    <td>{{ .Title }}</td>
+                    <td>{{ .Artist }}</td>
+                    <td>{{ if .Uploaded }}Uploaded!{{ else }}Submitted{{ end }}</td>
+                </tr>
+                {{ end }}
+            </table>
+
+            <hr>
+            <h2>Other People's Requests</h2>
+            <table class="table table-striped">
+                {{ range .UnuploadedRequests }}
+                <tr>
+                    <td>{{ .Title }}</td>
+                    <td>{{ .Artist }}</td>
+                    <td>
+                        <form action="/ihaveuploaded" , method="post" , target="_self">
+                            <input type="hidden" name="id" value="{{ .ID }}">
+                            <input type="submit" value="I've Uploaded This" class="btn btn-primary">
+                        </form>
+                    </td>
+                </tr>
+                {{ end }}
+            </table>
+        </div>
+
+        {{ if .AdminUser }}
+        <div id="admin" class="tab-pane fade">
+            <h2>Requests</h2>
+            We have spent <b>£{{ .TotalCost }}</b>
+            <br>
+            <br>
+
+            <table class="table table-striped">
+                {{ range .AllRequests }}
+                <tr>
+                    <td>
+                        {{ .Title }}
+                    </td>
+                    <td>
+                        {{ .Artist }}
+                    </td>
+                    <td>
+                        {{ .UserName }}
+                    </td>
+                    <td>
+                        {{ .TimeStr }}
+                    </td>
+                    <td>
+                        {{ .OtherInfo }}
+                    </td>
+                    {{ if .Uploaded }}
+                    <td>£{{ .FormatCost }}</td>
+                    <td>Uploaded by {{ .UploadedByName }}</td>
+                    {{ else }}
+                    <form action="/bought" method="post" target="_self">
+                        <td><input type="number" min="0" step="0.01" name="cost" required class="form-control" placeholder="Cost"></td>
+                        <td><input type="hidden" name="id" value="{{ .ID }}">
+                            <input type="submit" value="I've Uploaded This" class="btn btn-primary"></td>
+                    </form>
+                    {{ end }}
+
+                </tr>
+                {{ end }}
+            </table>
+
+            <hr>
+
+            <h2>Bonus Requests</h2>
+            <form action="/bonus" target="_self" method="post" class="form">
+                <input type="text" id="bonus" name="bonus" required class="form-control" placeholder="MyRadio User ID">
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </form>
+        </div>
+        {{ end }}
+
+    </div>
+</body>
+
+</html>
