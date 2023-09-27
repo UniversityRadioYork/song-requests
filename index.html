@@ -36,7 +36,7 @@
     <div class="tab-content">
         <div id="requests" class="tab-pane fade in active">
             <h2>Request</h2>
-            You have <b>{{ .RequestsLeft }}</b> requests left this year.
+            You have <b>{{ .RequestsLeft }}</b> requests left this year. But don't worry, you can always buy the song yourself and upload it (<a href="https://docs.google.com/forms/d/e/1FAIpQLSeIkVMShKhuwtn5cKJyvJd242WNVf2vtn7elW3-myFEKrIPig/viewform"> after being trained</a>
             <br>
             <br> {{ if gt .RequestsLeft 0 }}
             <form action="/iwant" , method="post" , class="form" , target="_self">
