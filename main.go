@@ -10,10 +10,23 @@ import (
 	"sync"
 	"time"
 
+	"runtime/debug"
+
 	"github.com/UniversityRadioYork/myradio-go"
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v3"
 )
+
+var Commit = func() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" {
+				return setting.Value[:7]
+			}
+		}
+	}
+	return ""
+}()
 
 const AuthRealm string = "ury-song-requests"
 
@@ -222,6 +235,7 @@ func main() {
 			AdminUser          bool
 			TotalCost          string
 			AllRequests        []Request
+			CommitHash         string
 		}{
 			LoggedInName:       GetNameOfUser(user),
 			SongRequests:       songRequests,
@@ -230,6 +244,7 @@ func main() {
 			AdminUser:          adminUser,
 			AllRequests:        allRequests,
 			TotalCost:          fmt.Sprintf("%.2f", totalCost),
+			CommitHash:         Commit,
 		}); err != nil {
 			// TODO
 			panic(err)
