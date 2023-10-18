@@ -17,14 +17,7 @@
 
     <h1>Song Requests</h1>
 
-    <p>{{ .LoggedInName }} (<a id="logout">Sign Out</a>)</p>
-
-    <script>
-        document.getElementById("logout").onclick = () => {
-            var p = window.location.protocol + '//'
-            window.location = window.location.href.replace(p, p + 'logout:logout@')
-        }
-    </script>
+    <p>{{ .LoggedInName }} (<a href="/logout">Sign Out</a>)</p>
 
     {{ if .AdminUser }}
     <ul class="nav nav-tabs">

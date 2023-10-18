@@ -14,6 +14,7 @@ import (
 
 	"github.com/UniversityRadioYork/myradio-go"
 	"github.com/google/uuid"
+	"github.com/gorilla/sessions"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,6 +28,12 @@ var Commit = func() string {
 	}
 	return ""
 }()
+
+var (
+	// key must be 16, 24 or 32 bytes long (AES-128, AES-192 or AES-256)
+	key         = []byte("super-secret-key")
+	cookiestore = sessions.NewCookieStore(key)
+)
 
 const AuthRealm string = "ury-song-requests"
 
@@ -86,36 +93,47 @@ type ContextKey string
 
 const UserCtxKey ContextKey = "user"
 
-func (a *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	username, password, ok := r.BasicAuth()
+func auth(w http.ResponseWriter, r *http.Request) {
 
-	if username == "logout" {
-		http.Error(w, "Please close this site now to fully log out.", http.StatusUnauthorized)
+	if r.Method == "GET" {
+		http.ServeFile(w, r, "login.html")
 		return
-	}
+	} else if r.Method == "POST" {
+		session, _ := cookiestore.Get(r, AuthRealm)
 
-	var user *myradio.User
+		memberid := r.FormValue("memberid")
+		if memberid == "" {
+			http.Redirect(w, r, "/auth", http.StatusFound)
+			return
+		}
 
-	if ok {
 		var err error
-		user, err = MyRadioSession.UserCredentialsTest(username, password)
+		session.Values["memberid"], err = strconv.Atoi(memberid)
 		if err != nil {
-			ok = false
+			panic(err)
 		}
+		session.Save(r, w)
+		http.Redirect(w, r, "/", http.StatusFound)
 
-		if user == nil {
-			ok = false
-		}
 	}
+	fmt.Fprint(w, "hmmm")
+}
 
-	if ok {
-		ctx := context.WithValue(context.Background(), UserCtxKey, user.MemberID)
-		a.handler.ServeHTTP(w, r.WithContext(ctx))
+func (a *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	if r.URL.Path == "/auth" {
+		a.handler.ServeHTTP(w, r)
 		return
 	}
 
-	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm="%s", charset="UTF-8"`, AuthRealm))
-	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	session, _ := cookiestore.Get(r, AuthRealm)
+	if auth, ok := session.Values["memberid"].(int); !ok || auth == 0 {
+		// redirect to auth
+		http.Redirect(w, r, "/auth", http.StatusFound)
+	} else {
+		ctx := context.WithValue(context.Background(), UserCtxKey, auth)
+		a.handler.ServeHTTP(w, r.WithContext(ctx))
+	}
 
 }
 
@@ -143,6 +161,10 @@ func (s *Datastore) update() {
 }
 
 func main() {
+
+	cookiestore.Options = &sessions.Options{
+		MaxAge: int(time.Minute * 10),
+	}
 
 	store := Datastore{
 		RequestsPerPerson: 6, // default
@@ -322,6 +344,15 @@ func main() {
 		http.Redirect(w, r, "/", http.StatusFound)
 	})
 
-	http.ListenAndServe(":8080", &AuthMiddleware{mux})
+	mux.HandleFunc("/auth", auth)
+
+	mux.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		session, _ := cookiestore.Get(r, AuthRealm)
+		session.Values["memberid"] = 0
+		session.Save(r, w)
+		http.Redirect(w, r, "https://ury.org.uk/myradio/MyRadio/logout", http.StatusFound)
+	})
+
+	http.ListenAndServe("local-development.ury.org.uk:8080", &AuthMiddleware{mux})
 
 }
