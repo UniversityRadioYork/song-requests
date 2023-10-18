@@ -185,9 +185,13 @@ func main() {
 		}
 
 		songRequests := make([]Request, 0)
+		requestsUploadedNotBought := 0
 		for _, v := range store.Requests {
 			if v.User == user {
 				songRequests = append(songRequests, v)
+				if v.Uploaded && v.Cost == 0 {
+					requestsUploadedNotBought += 1
+				}
 			}
 		}
 
@@ -221,7 +225,7 @@ func main() {
 		}{
 			LoggedInName:       GetNameOfUser(user),
 			SongRequests:       songRequests,
-			RequestsLeft:       store.RequestsPerPerson - len(songRequests) + bonusCount,
+			RequestsLeft:       store.RequestsPerPerson - len(songRequests) + requestsUploadedNotBought + bonusCount,
 			UnuploadedRequests: unuploadedRequests,
 			AdminUser:          adminUser,
 			AllRequests:        allRequests,
