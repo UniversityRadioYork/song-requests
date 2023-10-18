@@ -109,7 +109,7 @@ func (a *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Datastore) update() {
 	defer s.lock.Unlock()
 
-	dataFile, err := os.OpenFile("data.yaml", os.O_WRONLY, os.ModeAppend)
+	dataFile, err := os.OpenFile("data/data.yaml", os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		// TODO
 		panic(err)
@@ -135,13 +135,13 @@ func main() {
 		RequestsPerPerson: 6, // default
 	}
 
-	f, err := os.ReadFile("data.yaml")
+	f, err := os.ReadFile("data/data.yaml")
 	if err != nil {
 		defaultYaml, err := yaml.Marshal(store)
 		if err != nil {
 			panic(err)
 		}
-		if err = os.WriteFile("data.yaml", defaultYaml, 0644); err != nil {
+		if err = os.WriteFile("data/data.yaml", defaultYaml, 0644); err != nil {
 			panic(err)
 		}
 

@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 RUN go build
+RUN mkdir data
 
 EXPOSE 8080
 
