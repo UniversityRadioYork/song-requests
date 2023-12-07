@@ -48,17 +48,18 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 
 	// Requests not done by admin yet
 	unuploadedRequests := make([]Request, 0)
+	completedRequests := make([]Request, 0)
 	for _, v := range store.Requests {
 		if v.Uploaded == StateNotUploaded {
 			unuploadedRequests = append(unuploadedRequests, v)
+		} else {
+			completedRequests = append(completedRequests, v)
 		}
 	}
 
 	// Admin User Page
 	totalCost := 0.00
-	allRequests := []Request{}
 	if adminUser {
-		allRequests = store.Requests
 		totalCost += store.InitialSpending
 		for _, v := range store.Requests {
 			totalCost += v.Cost
@@ -77,9 +78,9 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		UnuploadedRequests []Request
 
 		// Admin User Page
-		AdminUser   bool
-		TotalCost   string
-		AllRequests []Request
+		AdminUser         bool
+		TotalCost         string
+		CompletedRequests []Request
 	}{
 		LoggedInName: GetNameOfUser(user),
 		CommitHash:   Commit,
@@ -88,9 +89,9 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		RequestsLeft:       store.RequestsPerPerson - len(songRequests) + refundRequests + bonusCount,
 		UnuploadedRequests: unuploadedRequests,
 
-		AdminUser:   adminUser,
-		AllRequests: allRequests,
-		TotalCost:   fmt.Sprintf("%.2f", totalCost),
+		AdminUser:         adminUser,
+		CompletedRequests: completedRequests,
+		TotalCost:         fmt.Sprintf("%.2f", totalCost),
 	}); err != nil {
 		// TODO
 		panic(err)

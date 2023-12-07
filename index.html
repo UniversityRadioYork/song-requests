@@ -85,8 +85,17 @@
             <br>
             <br>
 
+            <div class="panel-group">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h6 class="panel-title">
+                      <a data-toggle="collapse" href="#collapse1">View Completed Requests</a>
+                    </h6>
+                  </div>
+                  <div id="collapse1" class="panel-collapse collapse">
+                   
             <table class="table table-striped">
-                {{ range .AllRequests }}
+                {{ range .CompletedRequests }}
                 <tr>
                     <td>
                         {{ .Title }}
@@ -109,7 +118,36 @@
                     {{ else if (eq .Uploaded "REJECTED") }}
                     <td></td>
                     <td>Rejected by {{ .UploadedByName }}</td>
-                    {{ else }}
+                    {{ end }}
+                </tr>
+                {{ end }}
+            </table>
+
+                 </div>
+                 </div>
+            </div>
+
+            <br>
+
+            <table class="table table-striped">
+                {{ range .UnuploadedRequests }}
+                <tr>
+                    <td>
+                        {{ .Title }}
+                    </td>
+                    <td>
+                        {{ .Artist }}
+                    </td>
+                    <td>
+                        {{ .UserName }}
+                    </td>
+                    <td>
+                        {{ .TimeStr }}
+                    </td>
+                    <td>
+                        <textarea>{{ .OtherInfo }}</textarea>
+                    </td>
+                    
                     <form action="/bought" method="post" target="_self">
                         <td><input type="number" min="0" step="0.01" name="cost" required class="form-control" placeholder="Cost"></td>
                         <td><input type="hidden" name="id" value="{{ .ID }}">
@@ -121,8 +159,6 @@
                             <input type="submit" value="Reject" class="btn btn-danger btn-sm">
                     </form>
                 </td>
-                    {{ end }}
-
                 </tr>
                 {{ end }}
             </table>
