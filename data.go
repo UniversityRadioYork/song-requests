@@ -10,6 +10,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type UploadState string
+
+const (
+	StateUploaded    UploadState = "UPLOADED"
+	StateNotUploaded UploadState = "NOTUPLOADED"
+	StateRejected    UploadState = "REJECTED"
+)
+
 type Request struct {
 	Datetime   time.Time
 	ID         uuid.UUID
@@ -18,7 +26,7 @@ type Request struct {
 	Artist     string
 	OtherInfo  string
 	UploadedBy int
-	Uploaded   bool
+	Uploaded   UploadState
 	Cost       float64
 }
 

@@ -55,7 +55,7 @@
                 <tr>
                     <td>{{ .Title }}</td>
                     <td>{{ .Artist }}</td>
-                    <td>{{ if .Uploaded }}Uploaded!{{ else }}Submitted{{ end }}</td>
+                    <td>{{ if (eq .Uploaded "UPLOADED") }}Uploaded!{{ else if (eq .Uploaded "REJECTED") }}Rejected{{ else }}Submitted{{ end }}</td>
                 </tr>
                 {{ end }}
             </table>
@@ -103,15 +103,24 @@
                     <td>
                         <textarea>{{ .OtherInfo }}</textarea>
                     </td>
-                    {{ if .Uploaded }}
+                    {{ if (eq .Uploaded "UPLOADED")}}
                     <td>£{{ .FormatCost }}</td>
                     <td>Uploaded by {{ .UploadedByName }}</td>
+                    {{ else if (eq .Uploaded "REJECTED") }}
+                    <td></td>
+                    <td>Rejected by {{ .UploadedByName }}</td>
                     {{ else }}
                     <form action="/bought" method="post" target="_self">
                         <td><input type="number" min="0" step="0.01" name="cost" required class="form-control" placeholder="Cost"></td>
                         <td><input type="hidden" name="id" value="{{ .ID }}">
-                            <input type="submit" value="I've Uploaded This" class="btn btn-primary"></td>
+                            <input type="submit" value="Uploaded" class="btn btn-primary btn-sm">
+                            
                     </form>
+                    <form action="/reject" method="post" target="_self">
+                        <input type="hidden" name="id" value="{{ .ID }}">
+                            <input type="submit" value="Reject" class="btn btn-danger btn-sm">
+                    </form>
+                </td>
                     {{ end }}
 
                 </tr>

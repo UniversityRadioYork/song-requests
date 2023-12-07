@@ -21,6 +21,7 @@ func HandleMakeRequest(w http.ResponseWriter, r *http.Request) {
 		Title:     r.FormValue("song-title"),
 		Artist:    r.FormValue("artist"),
 		OtherInfo: r.FormValue("other-info"),
+		Uploaded:  StateNotUploaded,
 	})
 
 	store.update()
@@ -36,7 +37,7 @@ func HandleUserUpload(w http.ResponseWriter, r *http.Request) {
 	store.lock.Lock()
 	for i, v := range store.Requests {
 		if v.ID.String() == r.FormValue("id") {
-			store.Requests[i].Uploaded = true
+			store.Requests[i].Uploaded = StateUploaded
 			store.Requests[i].UploadedBy = user
 		}
 	}
@@ -54,7 +55,7 @@ func HandleAdminUpload(w http.ResponseWriter, r *http.Request) {
 	store.lock.Lock()
 	for i, v := range store.Requests {
 		if v.ID.String() == r.FormValue("id") {
-			store.Requests[i].Uploaded = true
+			store.Requests[i].Uploaded = StateUploaded
 			store.Requests[i].UploadedBy = user
 			store.Requests[i].Cost = cost
 		}
@@ -75,4 +76,21 @@ func HandleBonusRequest(w http.ResponseWriter, r *http.Request) {
 	store.BonusRequests = append(store.BonusRequests, newRequest)
 	store.update()
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func HandleReject(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	user := r.Context().Value(UserCtxKey).(int)
+
+	store.lock.Lock()
+	for i, v := range store.Requests {
+		if v.ID.String() == r.FormValue("id") {
+			store.Requests[i].Uploaded = StateRejected
+			store.Requests[i].UploadedBy = user
+		}
+	}
+	store.update()
+	http.Redirect(w, r, "/", http.StatusFound)
+
 }

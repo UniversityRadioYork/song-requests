@@ -34,12 +34,14 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	songRequests := make([]Request, 0)
-	requestsUploadedNotBought := 0
+	refundRequests := 0
 	for _, v := range store.Requests {
 		if v.User == user {
 			songRequests = append(songRequests, v)
-			if v.Uploaded && v.Cost == 0 {
-				requestsUploadedNotBought += 1
+			if v.Uploaded == StateUploaded && v.Cost == 0 {
+				refundRequests += 1
+			} else if v.Uploaded == StateRejected {
+				refundRequests++
 			}
 		}
 	}
@@ -47,7 +49,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	// Requests not done by admin yet
 	unuploadedRequests := make([]Request, 0)
 	for _, v := range store.Requests {
-		if !v.Uploaded {
+		if v.Uploaded == StateNotUploaded {
 			unuploadedRequests = append(unuploadedRequests, v)
 		}
 	}
@@ -83,7 +85,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		CommitHash:   Commit,
 
 		SongRequests:       songRequests,
-		RequestsLeft:       store.RequestsPerPerson - len(songRequests) + requestsUploadedNotBought + bonusCount,
+		RequestsLeft:       store.RequestsPerPerson - len(songRequests) + refundRequests + bonusCount,
 		UnuploadedRequests: unuploadedRequests,
 
 		AdminUser:   adminUser,
