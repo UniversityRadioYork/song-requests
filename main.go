@@ -77,6 +77,13 @@ func main() {
 	mux.HandleFunc("/auth", auth)
 	mux.HandleFunc("/logout", HandleLogout)
 
-	http.ListenAndServe("local-development.ury.org.uk:8080", &AuthMiddleware{mux})
+	var host string
+	if os.Getenv("SONG_REQUESTS_DEV") == "1" {
+		host = "local-development.ury.org.uk"
+	} else {
+		host = "0.0.0.0"
+	}
+
+	http.ListenAndServe(host+":8080", &AuthMiddleware{mux})
 
 }
