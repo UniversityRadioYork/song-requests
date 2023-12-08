@@ -3,6 +3,8 @@
 <head>
     <title>Song Requests</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
@@ -56,8 +58,10 @@
             </form>
             {{ end }}
             <hr>
+
+            {{ if .SongRequests }}
             <h4>My Requests</h4>
-            <table class="table table-striped">
+            <table class="table table-striped table-responsive">
                 {{ range .SongRequests }}
                 <tr>
                     <td>{{ .Title }}</td>
@@ -69,8 +73,12 @@
             </table>
 
             <hr>
+
+            {{ end }}
+
+            {{ if .UnuploadedRequests }}
             <h4>Other People's Requests</h4>
-            <table class="table table-striped">
+            <table class="table table-striped table-responsive">
                 {{ range .UnuploadedRequests }}
                 <tr>
                     <td>{{ .Title }}</td>
@@ -84,6 +92,9 @@
                 </tr>
                 {{ end }}
             </table>
+            <hr>
+            {{ end }}
+            
         </div>
 
         {{ if .AdminUser }}
@@ -101,7 +112,7 @@
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
 
-                        <table class="table table-striped">
+                        <table class="table table-striped table-responsive">
                             {{ range .CompletedRequests }}
                             <tr>
                                 <td>
@@ -136,7 +147,7 @@
 
             <br>
 
-            <table class="table table-striped">
+            <table class="table table-striped table-responsive">
                 {{ range .UnuploadedRequests }}
                 <tr>
                     <td>
@@ -178,10 +189,11 @@
                 <input type="text" id="bonus" name="bonus" required class="form-control" placeholder="MyRadio User ID">
                 <input type="submit" value="Submit" class="btn btn-primary">
             </form>
+
+            <hr>
         </div>
         {{ end }}
 
-        <hr>
         <p class="text-center">Song Requests - version {{ .CommitHash }}</p>
 
     </div>
