@@ -15,6 +15,7 @@ type UploadState string
 const (
 	StateUploaded    UploadState = "UPLOADED"
 	StateNotUploaded UploadState = "NOTUPLOADED"
+	StateCancelled   UploadState = "CANCELLED"
 	StateRejected    UploadState = "REJECTED"
 )
 

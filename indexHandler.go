@@ -40,7 +40,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 			songRequests = append(songRequests, v)
 			if v.Uploaded == StateUploaded && v.Cost == 0 {
 				refundRequests += 1
-			} else if v.Uploaded == StateRejected {
+			} else if v.Uploaded == StateRejected || v.Uploaded == StateCancelled {
 				refundRequests++
 			}
 		}

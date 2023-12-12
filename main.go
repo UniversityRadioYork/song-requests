@@ -73,6 +73,7 @@ func main() {
 	mux.HandleFunc("/ihaveuploaded", HandleUserUpload)
 	mux.HandleFunc("/bought", HandleAdminUpload)
 	mux.HandleFunc("/reject", HandleReject)
+	mux.HandleFunc("/cancel", HandleUserCancel)
 	mux.HandleFunc("/bonus", HandleBonusRequest)
 	mux.HandleFunc("/auth", auth)
 	mux.HandleFunc("/logout", HandleLogout)

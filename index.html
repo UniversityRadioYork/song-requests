@@ -67,7 +67,18 @@
                     <td>{{ .Title }}</td>
                     <td>{{ .Artist }}</td>
                     <td>{{ if (eq .Uploaded "UPLOADED") }}Uploaded!{{ else if (eq .Uploaded "REJECTED") }}Rejected{{
+                        else if (eq .Uploaded "CANCELLED") }}Cancelled{{
                         else }}Submitted{{ end }}</td>
+                    {{ if (eq .Uploaded "NOTUPLOADED") }}
+                    <td>
+                        <form action="/cancel" method="post" target="_self">
+                            <input type="hidden" name="id" value="{{ .ID }}">
+                            <input type="submit" value="Cancel" class="btn btn-danger btn-sm">
+                        </form>
+                    </td>
+                    {{ else }}
+                    <td></td>
+                    {{ end }}
                 </tr>
                 {{ end }}
             </table>
@@ -94,7 +105,7 @@
             </table>
             <hr>
             {{ end }}
-            
+
         </div>
 
         {{ if .AdminUser }}
@@ -136,6 +147,9 @@
                                 {{ else if (eq .Uploaded "REJECTED") }}
                                 <td></td>
                                 <td>Rejected by {{ .UploadedByName }}</td>
+                                {{ else if (eq .Uploaded "CANCELLED") }}
+                                <td></td>
+                                <td>Cancelled</td>
                                 {{ end }}
                             </tr>
                             {{ end }}

@@ -46,6 +46,19 @@ func HandleUserUpload(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func HandleUserCancel(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	store.lock.Lock()
+	for i, v := range store.Requests {
+		if v.ID.String() == r.FormValue("id") {
+			store.Requests[i].Uploaded = StateCancelled
+		}
+	}
+	store.update()
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 func HandleAdminUpload(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
