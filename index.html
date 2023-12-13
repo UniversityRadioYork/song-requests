@@ -38,10 +38,10 @@
 
     <div class="tab-content">
         <div id="requests" class="tab-pane fade active show">
-            You have <b>{{ .RequestsLeft }}</b> requests left this year. But don't worry, you can always buy the song
+            You have <b>{{ .RequestsLeft }}</b> requests left this year, but don't worry, you can always buy the song
             yourself and upload it (<a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSeIkVMShKhuwtn5cKJyvJd242WNVf2vtn7elW3-myFEKrIPig/viewform">after
-                being trained</a>)
+                being trained</a>).
             <br>
             <br> {{ if gt .RequestsLeft 0 }}
             <form action="/iwant" , method="post" , class="form" , target="_self">
@@ -97,7 +97,7 @@
                     <td>
                         <form action="/ihaveuploaded" , method="post" , target="_self">
                             <input type="hidden" name="id" value="{{ .ID }}">
-                            <input type="submit" value="I've Uploaded This" class="btn btn-primary">
+                            <input type="submit" value="I've Uploaded This" class="btn btn-success btn-sm">
                         </form>
                     </td>
                 </tr>
@@ -184,9 +184,11 @@
                         <td><input type="number" min="0" step="0.01" name="cost" required class="form-control"
                                 placeholder="Cost"></td>
                         <td><input type="hidden" name="id" value="{{ .ID }}">
-                            <input type="submit" value="Uploaded" class="btn btn-primary btn-sm">
+                            <input type="submit" value="Uploaded" class="btn btn-success btn-sm">
+                            </td>
 
                     </form>
+                    <td>
                     <form action="/reject" method="post" target="_self">
                         <input type="hidden" name="id" value="{{ .ID }}">
                         <input type="submit" value="Reject" class="btn btn-danger btn-sm">
@@ -199,9 +201,13 @@
             <hr>
 
             <h4>Bonus Requests</h4>
-            <form action="/bonus" target="_self" method="post" class="form">
-                <input type="text" id="bonus" name="bonus" required class="form-control" placeholder="MyRadio User ID">
-                <input type="submit" value="Submit" class="btn btn-primary">
+            <form action="/bonus" target="_self" method="post" class="form row">
+                <div class="col-xs-3">
+                    <div class="input-group">
+                    <input type="text" id="bonus" name="bonus" required class="form-control"
+                        placeholder="MyRadio User ID">
+                    <input type="submit" value="Submit" class="btn btn-primary">
+                </div></div>
             </form>
 
             <hr>
