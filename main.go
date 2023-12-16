@@ -28,11 +28,35 @@ var store Datastore = Datastore{
 	RequestsPerPerson: 6, // default
 }
 
+var nameCache map[int]struct {
+	name      string
+	cacheTime time.Time
+} = make(map[int]struct {
+	name      string
+	cacheTime time.Time
+})
+
+const cacheExpiryDays int = 2
+
 func GetNameOfUser(id int) string {
+	if cacheResult, ok := nameCache[id]; ok {
+		if cacheResult.cacheTime.After(time.Now().AddDate(0, 0, -cacheExpiryDays)) {
+			return cacheResult.name
+		}
+	}
+
 	name, err := MyRadioSession.GetUserName(id)
 	if err != nil {
 		// TODO
 		panic(err)
+	}
+
+	nameCache[id] = struct {
+		name      string
+		cacheTime time.Time
+	}{
+		name:      name,
+		cacheTime: time.Now(),
 	}
 
 	return name
