@@ -59,10 +59,30 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 
 	// Admin User Page
 	totalCost := 0.00
+	userRemainingRequests := make(map[string]int)
 	if adminUser {
 		totalCost += store.InitialSpending
 		for _, v := range store.Requests {
 			totalCost += v.Cost
+
+			if _, ok := userRemainingRequests[v.UserName()]; !ok {
+				userRemainingRequests[v.UserName()] = store.RequestsPerPerson
+			}
+
+			userRemainingRequests[v.UserName()]--
+
+			if v.Uploaded == StateUploaded && v.Cost == 0 {
+				userRemainingRequests[v.UserName()]++
+			} else if v.Uploaded == StateRejected || v.Uploaded == StateCancelled {
+				userRemainingRequests[v.UserName()]++
+			}
+		}
+
+		for _, v := range store.BonusRequests {
+			if _, ok := userRemainingRequests[GetNameOfUser(v)]; !ok {
+				userRemainingRequests[GetNameOfUser(v)] = store.RequestsPerPerson
+			}
+			userRemainingRequests[GetNameOfUser(v)]++
 		}
 	}
 
@@ -78,9 +98,10 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		UnuploadedRequests []Request
 
 		// Admin User Page
-		AdminUser         bool
-		TotalCost         string
-		CompletedRequests []Request
+		AdminUser             bool
+		TotalCost             string
+		CompletedRequests     []Request
+		UserRemainingRequests map[string]int
 	}{
 		LoggedInName: GetNameOfUser(user),
 		CommitHash:   Commit,
@@ -89,9 +110,10 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		RequestsLeft:       store.RequestsPerPerson - len(songRequests) + refundRequests + bonusCount,
 		UnuploadedRequests: unuploadedRequests,
 
-		AdminUser:         adminUser,
-		CompletedRequests: completedRequests,
-		TotalCost:         fmt.Sprintf("%.2f", totalCost),
+		AdminUser:             adminUser,
+		CompletedRequests:     completedRequests,
+		TotalCost:             fmt.Sprintf("%.2f", totalCost),
+		UserRemainingRequests: userRemainingRequests,
 	}); err != nil {
 		// TODO
 		panic(err)
