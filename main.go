@@ -68,6 +68,7 @@ func main() {
 		MaxAge: int(time.Minute * 10),
 	}
 
+	time.Sleep(5*time.Second)
 	f, err := os.ReadFile("data/data.yaml")
 	if err != nil {
 		defaultYaml, err := yaml.Marshal(store)
