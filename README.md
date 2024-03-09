@@ -1,5 +1,5 @@
 # Song Requests
-This is a simple Go app that handles a calendar front-end for off-air studio booking at URY. 
+This is a simple Go app that handles member requests for the station to purchase songs.
 
 # Getting started
 
