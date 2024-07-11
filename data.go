@@ -77,3 +77,19 @@ func (s *Datastore) update() {
 		panic(err)
 	}
 }
+
+func isAdminUser(userId int) bool {
+	// Is the User an Admin User?
+	management, err := MyRadioSession.GetTeamWithOfficers("management")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range management.Officers {
+		if v.User.MemberID == userId {
+			return true
+		}
+	}
+
+	return false
+}

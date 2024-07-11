@@ -12,18 +12,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 
 	user := r.Context().Value(UserCtxKey).(int)
 
-	// Is the User an Admin User?
-	adminUser := false
-	management, err := MyRadioSession.GetTeamWithOfficers("management")
-	if err != nil {
-		panic(err)
-	}
-
-	for _, v := range management.Officers {
-		if v.User.MemberID == user {
-			adminUser = true
-		}
-	}
+	adminUser := isAdminUser(user)
 
 	// User's Details
 	bonusCount := 0
@@ -102,6 +91,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		TotalCost             string
 		CompletedRequests     []Request
 		UserRemainingRequests map[string]int
+		PreviousYearsData     []string
 	}{
 		LoggedInName: GetNameOfUser(user),
 		CommitHash:   Commit,
@@ -114,6 +104,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		CompletedRequests:     completedRequests,
 		TotalCost:             fmt.Sprintf("%.2f", totalCost),
 		UserRemainingRequests: userRemainingRequests,
+		PreviousYearsData:     previousYearCSVs,
 	}); err != nil {
 		// TODO
 		panic(err)

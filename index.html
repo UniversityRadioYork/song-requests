@@ -36,6 +36,7 @@
         <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#requests">My Requests</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#admin">Requests Admin</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#user">User Admin</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#settings">Settings</a></li>
     </ul>
     <br>
     {{ else }}
@@ -245,6 +246,27 @@
             </form>
 
             <hr>
+        </div>
+
+        <div id="settings" class="tab-pane fade">
+            <h4>Previous Year's Data</h4>
+            <table class="table table-responsive table-striped">
+                <tr><th>Save Date</th><th>Download Link</th></tr>
+                {{ range .PreviousYearsData }}
+                <tr>
+                    <td>{{ . }}</td>
+                    <td><a href="/csv?date={{ . }}">Download</a></td>
+                </tr>
+                {{ end }}
+            </table>
+
+            <hr>
+
+            <h4>Start New Year</h4>
+            <p>This will collapse all the current data in this website into a downloadable spreadsheet linked above, and then reset all requests. This should probably only be done once a year.</p>
+            <form action="/startnewyear">
+                <button type="submit" class="btn btn-danger">Start New Year</button>
+            </form>
         </div>
         {{ end }}
 

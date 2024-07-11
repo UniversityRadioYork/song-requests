@@ -23,9 +23,11 @@ var Commit = func() string {
 	return ""
 }()
 
+const DefaultRequestsPerPerson = 6
+
 var MyRadioSession *myradio.Session
 var store Datastore = Datastore{
-	RequestsPerPerson: 6, // default
+	RequestsPerPerson: DefaultRequestsPerPerson,
 }
 
 var nameCache map[int]struct {
@@ -38,7 +40,13 @@ var nameCache map[int]struct {
 
 const cacheExpiryDays int = 2
 
+var previousYearCSVs []string
+
 func GetNameOfUser(id int) string {
+	if id == 0 {
+		return ""
+	}
+
 	if cacheResult, ok := nameCache[id]; ok {
 		if cacheResult.cacheTime.After(time.Now().AddDate(0, 0, -cacheExpiryDays)) {
 			return cacheResult.name
@@ -62,23 +70,27 @@ func GetNameOfUser(id int) string {
 	return name
 }
 
+func makeNewDatafile() {
+	defaultYaml, err := yaml.Marshal(store)
+	if err != nil {
+		panic(err)
+	}
+	if err = os.WriteFile("data/data.yaml", defaultYaml, 0644); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
+	populatePreviousYearCSVs()
 
 	cookiestore.Options = &sessions.Options{
 		MaxAge: int(time.Minute * 10),
 	}
 
-	time.Sleep(5*time.Second)
+	time.Sleep(5 * time.Second)
 	f, err := os.ReadFile("data/data.yaml")
 	if err != nil {
-		defaultYaml, err := yaml.Marshal(store)
-		if err != nil {
-			panic(err)
-		}
-		if err = os.WriteFile("data/data.yaml", defaultYaml, 0644); err != nil {
-			panic(err)
-		}
-
+		makeNewDatafile()
 	}
 
 	err = yaml.Unmarshal(f, &store)
@@ -102,6 +114,8 @@ func main() {
 	mux.HandleFunc("/bonus", HandleBonusRequest)
 	mux.HandleFunc("/auth", auth)
 	mux.HandleFunc("/logout", HandleLogout)
+	mux.HandleFunc("/startnewyear", HandleStartNewYear)
+	mux.HandleFunc("/csv", HandleCSV)
 
 	var host string
 	if os.Getenv("SONG_REQUESTS_DEV") == "1" {

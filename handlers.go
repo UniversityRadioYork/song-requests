@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -105,5 +106,31 @@ func HandleReject(w http.ResponseWriter, r *http.Request) {
 	}
 	store.update()
 	http.Redirect(w, r, "/", http.StatusFound)
+
+}
+
+func HandleStartNewYear(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value(UserCtxKey).(int)
+	if !isAdminUser(user) {
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Fprint(w, "Forbidden")
+		return
+	}
+
+	CreateNewYear()
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func HandleCSV(w http.ResponseWriter, r *http.Request) {
+	req := r.URL.Query().Get("date")
+
+	if req == "" {
+		// return 400
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Bad Request")
+		return
+	}
+
+	http.ServeFile(w, r, fmt.Sprintf("data/%s.csv", req))
 
 }
