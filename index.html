@@ -227,25 +227,17 @@
                 {{ range $name, $numreqs := .UserRemainingRequests }}
                 <tr>
                     <td>{{ $name }}</td>
-                    <td>{{ $numreqs }}</td>
+                    <td>{{ $numreqs.NumRequests }}</td>
+                    <td><form action="/bonus" target="_self" method="post">
+                        <input type="hidden" id="bonus" name="bonus" value={{ $numreqs.UserID }}>
+                        <input type="submit" value="Give Extra Request" class="btn btn-sm btn-primary">
+                    </form></td>
                 </tr>
                 {{ end }}
             </table>
 
             <hr>
 
-            <h4>Bonus Requests</h4>
-            <form action="/bonus" target="_self" method="post" class="form row">
-                <div class="col-xs-3">
-                    <div class="input-group">
-                        <input type="text" id="bonus" name="bonus" required class="form-control"
-                            placeholder="MyRadio User ID">
-                        <input type="submit" value="Submit" class="btn btn-primary">
-                    </div>
-                </div>
-            </form>
-
-            <hr>
         </div>
 
         <div id="settings" class="tab-pane fade">

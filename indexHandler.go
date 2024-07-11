@@ -48,30 +48,50 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 
 	// Admin User Page
 	totalCost := 0.00
-	userRemainingRequests := make(map[string]int)
+
+	type userRemainingRequestsObject struct {
+		NumRequests int
+		UserID      int
+	}
+	userRemainingRequests := make(map[string]userRemainingRequestsObject)
+
 	if adminUser {
 		totalCost += store.InitialSpending
+
+		var e userRemainingRequestsObject
+
 		for _, v := range store.Requests {
 			totalCost += v.Cost
 
 			if _, ok := userRemainingRequests[v.UserName()]; !ok {
-				userRemainingRequests[v.UserName()] = store.RequestsPerPerson
+				userRemainingRequests[v.UserName()] = struct {
+					NumRequests int
+					UserID      int
+				}{NumRequests: store.RequestsPerPerson, UserID: v.User}
 			}
 
-			userRemainingRequests[v.UserName()]--
+			e = userRemainingRequests[v.UserName()]
+			e.NumRequests--
+			userRemainingRequests[v.UserName()] = e
 
 			if v.Uploaded == StateUploaded && v.Cost == 0 {
-				userRemainingRequests[v.UserName()]++
+				e = userRemainingRequests[v.UserName()]
+				e.NumRequests++
+				userRemainingRequests[v.UserName()] = e
 			} else if v.Uploaded == StateRejected || v.Uploaded == StateCancelled {
-				userRemainingRequests[v.UserName()]++
+				e = userRemainingRequests[v.UserName()]
+				e.NumRequests++
+				userRemainingRequests[v.UserName()] = e
 			}
 		}
 
 		for _, v := range store.BonusRequests {
 			if _, ok := userRemainingRequests[GetNameOfUser(v)]; !ok {
-				userRemainingRequests[GetNameOfUser(v)] = store.RequestsPerPerson
+				userRemainingRequests[GetNameOfUser(v)] = userRemainingRequestsObject{NumRequests: store.RequestsPerPerson, UserID: v}
 			}
-			userRemainingRequests[GetNameOfUser(v)]++
+			e = userRemainingRequests[GetNameOfUser(v)]
+			e.NumRequests++
+			userRemainingRequests[GetNameOfUser(v)] = e
 		}
 	}
 
@@ -90,7 +110,7 @@ func HandleIndex(w http.ResponseWriter, r *http.Request) {
 		AdminUser             bool
 		TotalCost             string
 		CompletedRequests     []Request
-		UserRemainingRequests map[string]int
+		UserRemainingRequests map[string]userRemainingRequestsObject
 		PreviousYearsData     []string
 	}{
 		LoggedInName: GetNameOfUser(user),
