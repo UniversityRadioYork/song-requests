@@ -117,6 +117,11 @@ func HandleStartNewYear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.URL.Query().Get("confirm") != "on" {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
 	CreateNewYear()
 	http.Redirect(w, r, "/", http.StatusFound)
 }
