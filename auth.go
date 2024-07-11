@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/sessions"
 )
 
@@ -27,28 +29,54 @@ const UserCtxKey ContextKey = "user"
 
 func auth(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == "GET" {
-		http.ServeFile(w, r, "login.html")
+	jwtString := r.URL.Query().Get("jwt")
+
+	if jwtString == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "no jwt")
 		return
-	} else if r.Method == "POST" {
-		session, _ := cookiestore.Get(r, AuthRealm)
-
-		memberid := r.FormValue("memberid")
-		if memberid == "" {
-			http.Redirect(w, r, "/auth", http.StatusFound)
-			return
-		}
-
-		var err error
-		session.Values["memberid"], err = strconv.Atoi(memberid)
-		if err != nil {
-			panic(err)
-		}
-		session.Save(r, w)
-		http.Redirect(w, r, "/", http.StatusFound)
-
 	}
-	fmt.Fprint(w, "hmmm")
+
+	// parse the token
+	token, err := jwt.Parse(jwtString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+
+		return []byte(os.Getenv("MYRADIO_SIGNING_KEY")), nil
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, err)
+		return
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, err)
+		return
+	}
+
+	session, _ := cookiestore.Get(r, AuthRealm)
+
+	memberid := claims["uid"].(float64)
+	name := claims["name"].(string)
+
+	nameCache[int(memberid)] = struct {
+		name      string
+		cacheTime time.Time
+	}{
+		name:      name,
+		cacheTime: time.Now(),
+	}
+
+	session.Values["memberid"] = int(memberid)
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusFound)
+
 }
 
 func (a *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +89,7 @@ func (a *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session, _ := cookiestore.Get(r, AuthRealm)
 	if auth, ok := session.Values["memberid"].(int); !ok || auth == 0 {
 		// redirect to auth
-		http.Redirect(w, r, "/auth", http.StatusFound)
+		http.Redirect(w, r, fmt.Sprintf("https://ury.org.uk/myradio/MyRadio/jwt?redirectto=%s/auth", os.Getenv("HOST")), http.StatusFound)
 	} else {
 		ctx := context.WithValue(context.Background(), UserCtxKey, auth)
 		a.handler.ServeHTTP(w, r.WithContext(ctx))

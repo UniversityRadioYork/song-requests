@@ -2,6 +2,8 @@ github.com/UniversityRadioYork/myradio-go v0.0.0-20220923185614-685895615da0 h1:
 github.com/UniversityRadioYork/myradio-go v0.0.0-20220923185614-685895615da0/go.mod h1:iFH6u3KFaQ73MR9bfqTThGd7TFUYUe9cAajxxh9E0Z8=
 github.com/UniversityRadioYork/myradio-go v0.0.0-20230523181859-9d09922c2c51 h1:Purn+ISRrnAlHnwH5cAUTwthqUAaNz1TemCQUG02xLA=
 github.com/UniversityRadioYork/myradio-go v0.0.0-20230523181859-9d09922c2c51/go.mod h1:iFH6u3KFaQ73MR9bfqTThGd7TFUYUe9cAajxxh9E0Z8=
+github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
+github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/securecookie v1.1.1 h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyCS8BvQ=
